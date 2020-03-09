@@ -2,6 +2,7 @@
 - name: Test from_table filter
   assert:
     that:
+      - '{{ "Not a table string" | from_table }} == []'
       - "{{ table_string1 | from_table }} == {{ result }}"
       - "{{ table_string2 | from_table }} == {{ result }}"
       - "{{ table_string3 | from_table }} == {{ result }}"
