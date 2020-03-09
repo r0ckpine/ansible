@@ -19,8 +19,58 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import unicodedata
+
 from ansible.errors import AnsibleError, AnsibleFilterError
 from ansible.module_utils.six import string_types
+
+
+def _len_count(text):
+    count = 0
+    for c in text:
+        # Basic Latin, probably the most common case
+        if 0x0020 <= ord(c) <= 0x007E:
+            count += 1
+        # Full-width characters
+        elif unicodedata.east_asian_width(c) in ('F', 'W', 'A'):
+            count += 2
+        # Control characters
+        elif unicodedata.category(c) == 'Cc':
+            # Backspace / Delete
+            if ord(c) in (0x0008, 0x007F):
+                count -= 1
+            # Null / Shift In / Unit Separator
+            elif ord(c) in (0x0000, 0x000F, 0x001F):
+                pass
+            # Other controle characters
+            else:
+                count += 1
+        # Combining
+        elif unicodedata.combining(c):
+            count += 0
+        # Other characters (guess half-width)
+        else:
+            count += 1
+    return count
+
+
+def _get_fields(line, border):
+    if line.count('|') == len(border):
+        return [x.strip() for x in line[1:-1].split('|')]
+    else:
+        col_len = [end - start - 1 for start, end in zip(border[:], border[1:])]
+        i = 0
+        col = ''
+        fields = []
+        for piece in line[1:-1].split('|'):
+            col += piece
+            if _len_count(col) == col_len[i]:
+                fields.append(col.strip())
+                col = ''
+                i += 1
+            else:
+                col += '|'
+    return fields
 
 
 def from_table(data):
@@ -57,15 +107,12 @@ def from_table(data):
                 break
         elif line_num == 1:
             if line.startswith('|') and line.endswith('|'):
-                header = [line[start + 1:end].strip()
-                          for start, end in zip(border[:], border[1:])]
+                header = _get_fields(line, border)
             else:
                 break
         else:
             if line.startswith('|') and line.endswith('|'):
-                result.append(dict(zip(header,
-                                       [line[start + 1:end].strip()
-                                        for start, end in zip(border[:], border[1:])])))
+                result.append(dict(zip(header, _get_fields(line, border))))
             else:
                 # simply ignore the grid lines or other unformatted lines
                 continue
