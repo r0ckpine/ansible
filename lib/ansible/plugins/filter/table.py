@@ -21,21 +21,22 @@ __metaclass__ = type
 
 import unicodedata
 
-from ansible.errors import AnsibleError, AnsibleFilterError
-from ansible.module_utils.six import string_types
+from ansible.errors import AnsibleFilterError
+from ansible.module_utils.six import string_types, text_type
 
 
 def _len_count(text):
+    '''Calculate the Unicode width in the equivalent method as PrettyTable.'''
     count = 0
     for c in text:
         # Basic Latin, probably the most common case
         if 0x0020 <= ord(c) <= 0x007E:
             count += 1
         # Full-width characters
-        elif unicodedata.east_asian_width(c) in ('F', 'W', 'A'):
+        elif unicodedata.east_asian_width(text_type(c)) in ('F', 'W', 'A'):
             count += 2
         # Control characters
-        elif unicodedata.category(c) == 'Cc':
+        elif unicodedata.category(text_type(c)) == 'Cc':
             # Backspace / Delete
             if ord(c) in (0x0008, 0x007F):
                 count -= 1
@@ -46,7 +47,7 @@ def _len_count(text):
             else:
                 count += 1
         # Combining
-        elif unicodedata.combining(c):
+        elif unicodedata.combining(text_type(c)):
             count += 0
         # Other characters (guess half-width)
         else:
@@ -57,20 +58,29 @@ def _len_count(text):
 def _get_fields(line, border):
     if line.count('|') == len(border):
         return [x.strip() for x in line[1:-1].split('|')]
+    # if the fields contains '|', calculate the block width
     else:
-        col_len = [end - start - 1 for start, end in zip(border[:], border[1:])]
+        widths = [end - start - 1 for start, end in zip(border[:], border[1:])]
         i = 0
-        col = ''
+        block = ''
         fields = []
         for piece in line[1:-1].split('|'):
-            col += piece
-            if _len_count(col) == col_len[i]:
-                fields.append(col.strip())
-                col = ''
+            block += piece
+            block_len = _len_count(block)
+            if block_len == widths[i]:
+                fields.append(block.strip())
+                block = ''
                 i += 1
+            elif block_len < widths[i]:
+                block += '|'
+            # Width calculation failure
             else:
-                col += '|'
+                raise AnsibleFilterError('Invalid line: {1}'.format(line))
     return fields
+
+
+def _normalize_line_endings(lines):
+    return lines.replace('\r\n', '\n').replace('\r', '\n')
 
 
 def from_table(data):
@@ -94,24 +104,32 @@ def from_table(data):
     ]
     '''
     if not isinstance(data, string_types):
-        raise AnsibleFilterError("from_prettytable requires a string, got %s instead" % type(data))
+        raise AnsibleFilterError("from_table requires a string, got %s instead" % type(data))
 
     result = []
     header = []
     line_num = 0
-    for line in data.splitlines():
+    for line in _normalize_line_endings(data).split('\n'):
+        # Grid line
         if line_num == 0:
             if line.startswith('+') and line.endswith('+'):
                 border = [pos for pos, char in enumerate(line) if char == '+']
+                grid = line
             else:
                 break
+        # Header fields
         elif line_num == 1:
-            if line.startswith('|') and line.endswith('|'):
+            if line.startswith('|') and line.endswith('|') and line.count('|') >= len(border):
                 header = _get_fields(line, border)
             else:
                 break
+        # Grid line between header and values
+        elif line_num == 2:
+            if line != grid:
+                break
+        # Value fields
         else:
-            if line.startswith('|') and line.endswith('|'):
+            if line.startswith('|') and line.endswith('|') and line.count('|') >= len(border):
                 result.append(dict(zip(header, _get_fields(line, border))))
             else:
                 # simply ignore the grid lines or other unformatted lines

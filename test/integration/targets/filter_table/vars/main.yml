@@ -1,21 +1,5 @@
 ---
-# from prettytable import PrettyTable, ALL
-#
-# x = PrettyTable()
-# x.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
-# x.add_row(["Adelaide",1295, 1158259, 600.5])
-# x.add_row(["Brisbane",5905, 1857594, 1146.4])
-# x.add_row(["Darwin", 112, 120900, 1714.7])
-# x.add_row(["Hobart", 1357, 205556, 619.5])
-# x.add_row(["Sydney", 2058, 4336374, 1214.8])
-# x.add_row(["Melbourne", 1566, 3806092, 646.9])
-# x.add_row(["Perth", 5386, 1554769, 869.4])
-#
-# table_string1 = x.get_string()
-# table_string2 = x.get_string(hrules=ALL)
-# table_string3 = x.get_string + '\nThis line is ignored!'
-# table_string3 = x.get_string + '\n| This line is confusing! |'
-
+# PrettyTable output
 table_string1: |
   +-----------+------+------------+-----------------+
   | City name | Area | Population | Annual Rainfall |
@@ -29,54 +13,7 @@ table_string1: |
   |   Perth   | 5386 |  1554769   |      869.4      |
   +-----------+------+------------+-----------------+
 
-table_string2: |
-  +-----------+------+------------+-----------------+
-  | City name | Area | Population | Annual Rainfall |
-  +-----------+------+------------+-----------------+
-  |  Adelaide | 1295 |  1158259   |      600.5      |
-  +-----------+------+------------+-----------------+
-  |  Brisbane | 5905 |  1857594   |      1146.4     |
-  +-----------+------+------------+-----------------+
-  |   Darwin  | 112  |   120900   |      1714.7     |
-  +-----------+------+------------+-----------------+
-  |   Hobart  | 1357 |   205556   |      619.5      |
-  +-----------+------+------------+-----------------+
-  |   Sydney  | 2058 |  4336374   |      1214.8     |
-  +-----------+------+------------+-----------------+
-  | Melbourne | 1566 |  3806092   |      646.9      |
-  +-----------+------+------------+-----------------+
-  |   Perth   | 5386 |  1554769   |      869.4      |
-  +-----------+------+------------+-----------------+
-
-table_string3: |
-  +-----------+------+------------+-----------------+
-  | City name | Area | Population | Annual Rainfall |
-  +-----------+------+------------+-----------------+
-  |  Adelaide | 1295 |  1158259   |      600.5      |
-  |  Brisbane | 5905 |  1857594   |      1146.4     |
-  |   Darwin  | 112  |   120900   |      1714.7     |
-  |   Hobart  | 1357 |   205556   |      619.5      |
-  |   Sydney  | 2058 |  4336374   |      1214.8     |
-  | Melbourne | 1566 |  3806092   |      646.9      |
-  |   Perth   | 5386 |  1554769   |      869.4      |
-  +-----------+------+------------+-----------------+
-  This line is ignored!
-
-table_string4: |
-  +-----------+------+------------+-----------------+
-  | City name | Area | Population | Annual Rainfall |
-  +-----------+------+------------+-----------------+
-  |  Adelaide | 1295 |  1158259   |      600.5      |
-  |  Brisbane | 5905 |  1857594   |      1146.4     |
-  |   Darwin  | 112  |   120900   |      1714.7     |
-  |   Hobart  | 1357 |   205556   |      619.5      |
-  |   Sydney  | 2058 |  4336374   |      1214.8     |
-  | Melbourne | 1566 |  3806092   |      646.9      |
-  |   Perth   | 5386 |  1554769   |      869.4      |
-  +-----------+------+------------+-----------------+
-  | This line is confusing! |
-
-result:
+result1:
   - Annual Rainfall: '600.5'
     Area: '1295'
     City name: Adelaide
@@ -105,3 +42,74 @@ result:
     Area: '5386'
     City name: Perth
     Population: '1554769'
+
+# Prettytable output: The fialds contain UTF-8 characters
+table_string2: |
+  +--------+------------+----------+
+  | Kanji  |  Hiragana  | English  |
+  +--------+------------+----------+
+  |  東京  | とうきょう |  Tokyo   |
+  |  横浜  |  よこはま  | Yokohama |
+  |  大阪  |  おおさか  |  Osaka   |
+  +--------+------------+----------+
+
+result2:
+  - Kanji: 東京
+    Hiragana: とうきょう
+    English: Tokyo
+  - Kanji: 横浜
+    Hiragana: よこはま
+    English: Yokohama
+  - Kanji: 大阪
+    Hiragana: おおさか
+    English: Osaka
+
+# Prettytable output: The fialds contain '|'
+table_string3: |
+  +----------+--------+
+  | Operator | Syntax |
+  +----------+--------+
+  |   NOT    |   ~a   |
+  |   AND    | a & b  |
+  |    OR    | a | b  |
+  |   XOR    | a ^ b  |
+  +----------+--------+
+
+result3:
+  - Operator: NOT
+    Syntax: ~a
+  - Operator: AND
+    Syntax: a & b
+  - Operator: OR
+    Syntax: a | b
+  - Operator: XOR
+    Syntax: a ^ b
+
+# Prettytable output: The fialds contain UTF-8 characters and '|'
+table_string4: |
+  +----------------+------------+
+  |   Full-width   | Half-width |
+  +----------------+------------+
+  | あ|い|う|え|お | ｱ|ｲ|ｳ|ｴ|ｵ  |
+  | １|２|３|４|５ | 1|2|3|4|5  |
+  +----------------+------------+
+
+result4:
+  - Full-width: あ|い|う|え|お
+    Half-width: ｱ|ｲ|ｳ|ｴ|ｵ
+  - Full-width: １|２|３|４|５
+    Half-width: 1|2|3|4|5
+
+table_string5: |
+  +-----------+------+------------+-----------------+
+  | City name | Area | Population | Annual Rainfall |
+  +-----------+------+------------+-----------------+
+  |  Adelaide | 1295 |  1158259   |      600.5      |
+  |  Brisbane | 5905 |  1857594   |      1146.4     |
+  |   Darwin  | 112  |   120900   |      1714.7     |
+  |   Hobart  | 1357 |   205556   |      619.5      |
+  |   Sydney  | 2058 |  4336374   |      1214.8     |
+  | Melbourne | 1566 |  3806092   |      646.9      |
+  |   Perth   | 5386 |  1554769   |      869.4      |
+  +-----------+------+------------+-----------------+
+  | This line is ignored! |
