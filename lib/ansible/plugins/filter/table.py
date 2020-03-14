@@ -58,7 +58,7 @@ def _len_count(text):
 def _get_fields(line, border):
     if line.count('|') == len(border):
         return [x.strip() for x in line[1:-1].split('|')]
-    # if the fields contains '|', calculate the block width
+    # If the fields contains '|', calculate the block width
     else:
         widths = [end - start - 1 for start, end in zip(border[:], border[1:])]
         i = 0
@@ -79,8 +79,12 @@ def _get_fields(line, border):
     return fields
 
 
-def _normalize_line_endings(lines):
-    return lines.replace('\r\n', '\n').replace('\r', '\n')
+def _split_table_lines(lines):
+    '''Normalize line endings, then return a list of strings split by LF.
+    The fields of PrettyTable accept control characters, including '\v' or other line boundaries.
+    For that reason, from_table uses this function instead of built-in splitlines().
+    '''
+    return lines.replace('\r\n', '\n').replace('\r', '\n').split('\n')
 
 
 def from_table(data):
@@ -109,7 +113,7 @@ def from_table(data):
     result = []
     header = []
     line_num = 0
-    for line in _normalize_line_endings(data).split('\n'):
+    for line in _split_table_lines(data):
         # Grid line
         if line_num == 0:
             if line.startswith('+') and line.endswith('+'):

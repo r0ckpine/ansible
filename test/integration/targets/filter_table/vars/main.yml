@@ -1,4 +1,7 @@
 ---
+
+invalid_string: Not a table string
+
 # PrettyTable output
 table_string1: |
   +-----------+------+------------+-----------------+
