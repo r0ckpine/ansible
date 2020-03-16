@@ -1,9 +1,16 @@
 - name: Display test variables
   debug:
     msg:
+      - "xml_string1 is {{ xml_string1 | from_xml }}"
+      - "xml_string2 is {{ xml_string2 | from_xml }}"
+      - "xml_string3 is {{ xml_string3 | from_xml }}"
+      - "xml_string4 is {{ xml_string4 | from_xml }}"
+      - "xml_string5 is {{ xml_string5 | from_xml }}"
+      - "xml_string6 is {{ xml_string6 | from_xml }}"
+      - "xml_string7 is {{ xml_string7 | from_xml }}"
       - "xml_string8 is {{ xml_string8 | from_xml }}"
       - "xml_string9 is {{ xml_string9 | from_xml }}"
-#      - "json_string1 is {{ json_string1 | from_json }}"
+      - "xml_string10 is {{ xml_string10 | from_xml }}"
 
 - name: Test from_xml filter
   assert:

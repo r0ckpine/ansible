@@ -19,59 +19,37 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from collections import defaultdict
-from functools import partial
-import xml.etree.ElementTree as etree
+from xml.parsers.expat import ExpatError, errors
 
-from ansible.errors import AnsibleFilterError
-from ansible.module_utils.six import string_types, text_type
+try:
+    import xmltodict
+    HAS_XMLTODICT = True
+except ImportError:
+    HAS_XMLTODICT = False
 
-
-def etree_to_dict(elm, expand_to_list=()):
-    """ Converts ElementTree to dictionary.
-        You can use the force_list argument to force get a list as a
-        child, even if the element has only one sub-element.
-        :param elm: xml.etree.ElementTree object
-        :param expand_to_list: a tuple of tag names to force expand to list:
-        :returns: dictionary object
-    """
-    d = {elm.tag: {} if elm.attrib else None}
-    children = list(elm)
-    if children:
-        dd = defaultdict(list)
-        for dc in map(partial(etree_to_dict,
-                              expand_to_list=expand_to_list),
-                      children):
-            for k, v in dc.items():
-                dd[k].append(v)
-        d = {elm.tag: {k: v[0] if len(v) == 1 and k not in expand_to_list
-                       else v for k, v in dd.items()}}
-    if elm.attrib:
-        d[elm.tag].update(('@' + k, v) for k, v in elm.attrib.items())
-    if elm.text:
-        text = elm.text.strip()
-        if children or elm.attrib:
-            if text:
-                d[elm.tag]['#text'] = text
-        else:
-            d[elm.tag] = text
-    return d
+from ansible.errors import AnsibleError, AnsibleFilterError
+from ansible.module_utils.six import string_types
 
 
-def from_xml(string, expand_to_list=()):
+def from_xml(data):
     '''Converts XML string to a dictionary according to the following specification:
-    http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
-        :param string: XML string
-        :param expand_to_list: a tuple of tag names to force expand to list
+        http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
+        :param data: XML string
         :returns: a dictionary object
     '''
+    if not HAS_XMLTODICT:
+        raise AnsibleError('You need to install "xmltodict" prior to running '
+                           'from_xml filter')
+    if not isinstance(data, string_types):
+        raise AnsibleFilterError('from_xml requires a string, '
+                                 'got {0} instead'.format(type(data)))
     try:
-        root = etree.fromstring(string)
-    except etree.ParseError as err:
-        row, column = err.position
-        msg = 'XML parse error on row: {}, column: {}'.format(row, column)
+        return xmltodict.parse(data, dict_constructor=dict)
+    except xmltodict.expat.ExpatError as err:
+        msg = 'XML Parse error on line {0}, offset {1}: {2}'.format(err.lineno,
+                                                                    err.offset,
+                                                                    errors.messages[err.code])
         raise AnsibleFilterError(msg)
-    return etree_to_dict(root, expand_to_list=expand_to_list)
 
 
 class FilterModule(object):
