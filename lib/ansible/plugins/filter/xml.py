@@ -31,7 +31,7 @@ from ansible.errors import AnsibleError, AnsibleFilterError
 from ansible.module_utils.six import string_types
 
 
-def from_xml(data):
+def from_xml(data, process_namespaces=False, namespaces=None):
     '''Converts XML string to a dictionary according to the following specification:
         http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
         :param data: XML string
@@ -44,7 +44,10 @@ def from_xml(data):
         raise AnsibleFilterError('from_xml requires a string, '
                                  'got {0} instead'.format(type(data)))
     try:
-        return xmltodict.parse(data, dict_constructor=dict)
+        return xmltodict.parse(data,
+                               dict_constructor=dict,
+                               process_namespaces=process_namespaces,
+                               namespaces=namespaces)
     except xmltodict.expat.ExpatError as err:
         msg = 'XML Parse error on line {0}, offset {1}: {2}'.format(err.lineno,
                                                                     err.offset,

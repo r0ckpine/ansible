@@ -42,3 +42,7 @@ xml_string10: |
     <a:y>2</a:y>
     <b:z>3</b:z>
   </root>
+
+namespaces:
+  "http://defaultns.com/":
+  "http://a.com/": ns_a

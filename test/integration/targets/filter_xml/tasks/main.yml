@@ -11,6 +11,8 @@
       - "xml_string8 is {{ xml_string8 | from_xml }}"
       - "xml_string9 is {{ xml_string9 | from_xml }}"
       - "xml_string10 is {{ xml_string10 | from_xml }}"
+      - "xml_string10 is {{ xml_string10 | from_xml(process_namespaces=True) }}"
+      - "xml_string10 is {{ xml_string10 | from_xml(process_namespaces=True, namespaces=namespaces) }}"
 
 - name: Test from_xml filter
   assert:
