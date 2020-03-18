@@ -24,3 +24,6 @@
       - xml_string5 | from_xml == json_string5 | from_json
       - xml_string6 | from_xml == json_string6 | from_json
       - xml_string7 | from_xml == json_string7 | from_json
+      - xml_string8 | from_xml == json_string8 | from_json
+      - xml_string9 | from_xml == json_string9 | from_json
+      - xml_string10 | from_xml == json_string9 | from_json

@@ -26,6 +26,7 @@ xml_string8: |
     <a>content</a>
   </e>
 
+json_string8: '{"e": {"a": ["some", "content"], "b": "textual"}}'
 
 xml_string9: |
   <e>
@@ -33,6 +34,8 @@ xml_string9: |
     <a>textual</a>
     content
   </e>
+
+json_string9: '{"e": {"a": "textual", "#text": "some\\n  \\n  content"}}'
 
 xml_string10: |
   <root xmlns="http://defaultns.com/"
@@ -46,3 +49,5 @@ xml_string10: |
 namespaces:
   "http://defaultns.com/":
   "http://a.com/": ns_a
+
+json_string10: {'root': {'@xmlns': 'http://defaultns.com/', '@xmlns:a': 'http://a.com/', '@xmlns:b': 'http://b.com/', 'x': '1', 'a:y': '2', 'b:z': '3'}}"
