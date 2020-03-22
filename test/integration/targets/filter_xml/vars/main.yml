@@ -1,22 +1,58 @@
+---
+# XML string
+
+# 1. an empty element
 xml_string1: '<e/>'
 json_string1: '{"e": null}'
 
+# 2. an element with pure text content
 xml_string2: '<e>text</e>'
 json_string2: '{"e": "text"}'
 
+# 3. an empty element with attributes
 xml_string3: '<e name="value" />'
 json_string3: '{"e": {"@name": "value"}}'
 
+# 4. an element with pure text content and attributes
 xml_string4: '<e name="value">text</e>'
 json_string4: '{"e": {"@name": "value", "#text": "text"}}'
  
-xml_string5: '<e> <a>text</a> <b>text</b> </e>'
-json_string5: '{"e": {"a": "text", "b": "text"}}'
+# 5. an element containing elements with different names
+xml_string5: |
+  <e>
+    <a>text</a>
+    <b>text</b>
+  </e>
+json_string5: |
+  {
+    "e": {
+      "a": "text",
+      "b": "text"
+    }
+  }
 
-xml_string6: '<e> <a>text</a> <a>text</a> </e>'
-json_string6: '{"e": {"a": ["text", "text"]}}'
+# 6. an element containing elements with identical names
+xml_string6: |
+  <e>
+    <a>text</a>
+    <a>text</a>
+  </e>
+json_string6: |
+  {
+    "e": {
+      "a": [
+        "text",
+        "text"
+      ]
+    }
+  }
 
-xml_string7: '<e> text <a>text</a> </e>'
+# 7. an element containing elements and contiguous text
+xml_string7: |
+  <e>
+    text
+    <a>text</a>
+  </e>
 json_string7: '{"e": {"#text": "text", "a": "text"}}'
 
 xml_string8: |
@@ -35,7 +71,7 @@ xml_string9: |
     content
   </e>
 
-json_string9: '{"e": {"a": "textual", "#text": "some\\n  \\n  content"}}'
+json_string9: '{"e": {"a": "textual", "#text": ["some", "content"]}}'
 
 xml_string10: |
   <root xmlns="http://defaultns.com/"
@@ -50,4 +86,5 @@ namespaces:
   "http://defaultns.com/":
   "http://a.com/": ns_a
 
-json_string10: {'root': {'@xmlns': 'http://defaultns.com/', '@xmlns:a': 'http://a.com/', '@xmlns:b': 'http://b.com/', 'x': '1', 'a:y': '2', 'b:z': '3'}}"
+json_string10: '{"http://defaultns.com/:root": {"http://defaultns.com/:x": "1", "http://a.com/:y": "2", "http://b.com/:z": "3"}}'
+json_string11: '{"root": {"x": "1", "ns_a:y": "2", "http://b.com/:z": "3"}}'

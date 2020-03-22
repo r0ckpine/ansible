@@ -11,8 +11,8 @@
       - "xml_string8 is {{ xml_string8 | from_xml }}"
       - "xml_string9 is {{ xml_string9 | from_xml }}"
       - "xml_string10 is {{ xml_string10 | from_xml }}"
-      - "xml_string10 is {{ xml_string10 | from_xml(process_namespaces=True) }}"
-      - "xml_string10 is {{ xml_string10 | from_xml(process_namespaces=True, namespaces=namespaces) }}"
+      - "xml_string10 is {{ xml_string10 | from_xml }}"
+      - "xml_string10 is {{ xml_string10 | from_xml(ns_prefixes=namespaces) }}"
 
 - name: Test from_xml filter
   assert:
@@ -26,4 +26,5 @@
       - xml_string7 | from_xml == json_string7 | from_json
       - xml_string8 | from_xml == json_string8 | from_json
       - xml_string9 | from_xml == json_string9 | from_json
-      - xml_string10 | from_xml == json_string9 | from_json
+      - xml_string10 | from_xml == json_string10 | from_json
+      - xml_string10 | from_xml(ns_prefixes=namespaces) == json_string11 | from_json
